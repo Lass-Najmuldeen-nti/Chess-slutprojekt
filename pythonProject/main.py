@@ -15,6 +15,9 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 
+# TODO: Need to mention target_piece, row, and col before using them
+# TODO: Need to check position of pieces. Fix "self.position"
+
 class ChessPiece:
     def __init__(self, symbol, color, image_path):
         self.symbol = symbol
@@ -35,7 +38,8 @@ class ChessPiece:
 class King(ChessPiece):
     def __init__(self, color, image_path):
         super().__init__('K', color, image_path)
-        
+        self.position = None
+
     def get_moves(self, board):
         moves = []
         current_row, current_col = self.position
@@ -43,47 +47,169 @@ class King(ChessPiece):
         # Define all possible directions for the King to move
         directions = [(1, 0), (-1, 0), (0, 1), (0, -1),
                       (1, 1), (-1, 1), (1, -1), (-1, -1)]
-        pass  # Needs move set for the King, including "castling"
+
+        for dr, dc in directions:
+            new_row, new_col = current_row + dr, current_col + dc
+            if 0 <= new_row < 8 and 0 <= new_col < 8:
+                target_piece = board.get_piece_at(new_row, new_col)
+                if not target_piece or target_piece.color != self.color:
+                    moves.append((new_row, new_col))
+
+        return moves
+        pass  # TODO: Needs logic for the "castling" rule
 
 
 class Queen(ChessPiece):
     def __init__(self, color, image_path):
         super().__init__('Q', color, image_path)
+        self.position = None
 
     def get_moves(self, board):
-        pass  # Needs move set for the Queen
+        moves = []
+        directions = [(1, 0), (-1, 0), (0, 1), (0, -1),  # vertical and horizontal movement
+                      (1, 1), (-1, 1), (1, -1), (-1, -1)]  # diagonal movement
+
+        current_row, current_col = self.position
+
+        for dr, dc in directions:
+            for i in range(1, 8):  # Queen can move up to 7 squares in any direction
+                new_row, new_col = current_row + i * dr, current_col + i * dc
+                if 0 <= new_row < 8 and 0 <= new_col < 8:
+                    target_piece = board.get_piece_at(new_row, new_col)
+                    if not target_piece:
+                        moves.append((new_row, new_col))
+                    elif target_piece.color != self.color:
+                        moves.append((new_row, new_col))
+                        break
+                    else:
+                        break
+                else:
+                    break
+        return moves
+        pass
 
 
 class Rook(ChessPiece):
     def __init__(self, color, image_path):
         super().__init__('R', color, image_path)
+        self.position = None
 
     def get_moves(self, board):
-        return  # Needs move set for the Rooks
+        moves = []
+        directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]  # vertical and horizontal movement
+
+        current_row, current_col = self.position
+
+        for dr, dc in directions:
+            for i in range(1, 8):  # Rook can move up to 7 squares in any direction
+                new_row, new_col = current_row + i * dr, current_col + i * dc
+                if 0 <= new_row < 8 and 0 <= new_col < 8:
+                    target_piece = board.get_piece_at(new_row, new_col)
+                    if not target_piece:
+                        moves.append((new_row, new_col))
+                    elif target_piece.color != self.color:
+                        moves.append((new_row, new_col))
+                        break
+                    else:
+                        break
+                else:
+                    break
+        return moves
+        pass
 
 
 class Bishop(ChessPiece):
     def __init__(self, color, image_path):
         super().__init__('B', color, image_path)
+        self.position = None
 
     def get_moves(self, board):
-        pass  # Needs move set for the Bishops
+        moves = []
+        directions = [(1, 1), (-1, 1), (1, -1), (-1, -1)]  # diagonal
+
+        current_row, current_col = self.position
+
+        for dr, dc in directions:
+            for i in range(1, 8):  # Bishop can move up to 7 squares in any direction
+                new_row, new_col = current_row + i * dr, current_col + i * dc
+                if 0 <= new_row < 8 and 0 <= new_col < 8:
+                    target_piece = board.get_piece_at(new_row, new_col)
+                    if not target_piece:
+                        moves.append((new_row, new_col))
+                    elif target_piece.color != self.color:
+                        moves.append((new_row, new_col))
+                        break
+                    else:
+                        break
+                else:
+                    break
+
+        return moves
+        pass
 
 
 class Knight(ChessPiece):
     def __init__(self, color, image_path):
         super().__init__('N', color, image_path)
+        self.position = None
 
     def get_moves(self, board):
-        pass  # Needs move set for the Knights
+        moves = []
+        offsets = [(-2, -1), (-2, 1), (-1, -2), (-1, 2),
+                   (1, -2), (1, 2), (2, -1), (2, 1)]
+
+        current_row, current_col = self.position
+
+        for dr, dc in offsets:
+            new_row, new_col = current_row + dr, current_col + dc
+            if 0 <= new_row < 8 and 0 <= new_col < 8:
+                target_piece = board.get_piece_at(new_row, new_col)
+                if not target_piece or target_piece.color != self.color:
+                    moves.append((new_row, new_col))
+
+        return moves
+        pass
 
 
 class Pawn(ChessPiece):
+    # Previous move coordinates
+    previous_move = None
+
     def __init__(self, color, image_path):
         super().__init__('P', color, image_path)
+        self.position = None
+        self.starting_row = None  # Define position and starting row
 
     def get_moves(self, board):
-        pass  # Needs move set for the Pawns, including "en passant"
+        moves = []
+        current_row, current_col = self.position
+
+        # Define the direction in which the pawn moves based on its color
+        direction = 1 if self.color == 'white' else -1
+
+        # Check one square ahead
+        if 0 <= current_row + direction < 8:
+            if not board.get_piece_at(current_row + direction, current_col):
+                moves.append((current_row + direction, current_col))
+
+                # Check two squares ahead if it's the pawn's starting position
+                if current_row == self.starting_row and not board.get_piece_at(current_row + 2 * direction,
+                                                                               current_col):
+                    moves.append((current_row + 2 * direction, current_col))
+
+        # Check diagonal squares for capturing
+        for col_offset in [-1, 1]:
+            new_row = current_row + direction
+            new_col = current_col + col_offset
+            if 0 <= new_row < 8 and 0 <= new_col < 8:
+                target_piece = board.get_piece_at(new_row, new_col)
+                if target_piece and target_piece.color != self.color:
+                    moves.append((new_row, new_col))
+                elif target_piece is None and (new_row, new_col) == self.previous_move:
+                    moves.append((new_row, new_col))
+
+        return moves
+        pass  # TODO: Needs logic for the "en passant" rule
 
 
 # Create chess board with all piece's start position, global variables
@@ -125,13 +251,22 @@ class ChessBoard:
             ["r", "n", "b", "q", "k", "b", "n", "r"],
         ]
 
-    def get_piece_at(self, board):
+    # Rethink the colouring process
+    def get_piece_at(self, row, col):
         if 0 <= row < 8 and 0 <= col < 8:
             piece_symbol = self.board[row][col]
             if piece_symbol:
                 color = "white" if piece_symbol.isupper() else "black"
-                return globals()[piece_symbol.capitalize()](color)
+                return globals()[piece_symbol.capitalize()](color)  # Should return the piece at the specified position
+                # But it's returning a new piece instance based on the position without considering the actual piece
+                # on the board.
         return None
+
+    # Move code perhaps?
+    def remove_piece(self, row, col):
+        if 0 <= row < 8 and 0 <= col < 8:
+            self.board[row][col] = ""
+        pass  # TODO: Add remove piece function on the board
 
 
 # Initialize that no column is being clicked
@@ -149,7 +284,7 @@ while True:
             pygame.quit()
             sys.exit()
 
-        # Inside the game loop, after the event handling loop
+        # Check if mouse is being clicked and where it is selecting
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = pygame.mouse.get_pos()
             clicked_row = mouse_pos[1] // SQUARE_SIZE
@@ -164,8 +299,14 @@ while True:
             if selected_piece:
                 target_piece = chess_board.get_piece_at(clicked_row, clicked_col)
                 if target_piece:
-                    # ^If there is already a piece in the target square, implement capture logic here
-                    pass
+                    # Capture the target piece if it exists and it's of the opposite color
+                    if target_piece.color != selected_piece.color:
+                        # Check if the selected piece is capable of capturing the target piece
+                        if (clicked_row, clicked_col) in selected_piece.get_moves(chess_board):
+                            target_piece.position = None  # Reset target piece position
+                            chess_board.remove_piece(clicked_row, clicked_col)  # Remove the captured piece
+                            selected_piece.move_to(clicked_row, clicked_col)
+
                 else:
                     # Move the selected piece to the empty square
                     selected_piece.move_to(clicked_row, clicked_col)
@@ -187,6 +328,4 @@ while True:
 
     # Update Display
     pygame.display.flip()
-
-# End game
-pygame.quit()
+# pygame.quit()
