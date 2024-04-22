@@ -2,8 +2,6 @@ import pygame
 import sys
 import King, Rook
 
-import self
-
 # Initialize
 pygame.init()
 
@@ -170,20 +168,20 @@ class Pawn(ChessPiece):
 # Create chess board with all piece's start position, global variables
 white_pieces = [
     King('white', 'images/white_king.png'),
-    Queen('white', 'images/white_queen.png'),
+    Queen('white', '../images/white_queen.png'),
     Rook('white', 'images/white_rook.png'),
-    Bishop('white', 'images/white_bishop.png'),
-    Knight('white', 'images/white_knight.png'),
-    Pawn('white', 'images/white_pawn.png')
+    Bishop('white', '../images/white_bishop.png'),
+    Knight('white', '../images/white_knight.png'),
+    Pawn('white', '../images/white_pawn.png')
 ]
 
 black_pieces = [
     King('black', 'images/black_king.png'),
-    Queen('black', 'images/black_queen.png'),
+    Queen('black', '../images/black_queen.png'),
     Rook('black', 'images/black_rook.png'),
-    Bishop('black', 'images/black_bishop.png'),
-    Knight('black', 'images/black_knight.png'),
-    Pawn('black', 'images/black_pawn.png')
+    Bishop('black', '../images/black_bishop.png'),
+    Knight('black', '../images/black_knight.png'),
+    Pawn('black', '../images/black_pawn.png')
 ]
 captured_white = []
 captured_black = []
@@ -211,17 +209,17 @@ class ChessBoard:
     def initialize_pieces(self):
         piece_map = {
             "r": Rook("black", "images/black_rook.png"),
-            "n": Knight("black", "images/black_knight.png"),
-            "b": Bishop("black", "images/black_bishop.png"),
-            "q": Queen("black", "images/black_queen.png"),
+            "n": Knight("black", "../images/black_knight.png"),
+            "b": Bishop("black", "../images/black_bishop.png"),
+            "q": Queen("black", "../images/black_queen.png"),
             "k": King("black", "images/black_king.png"),
-            "p": Pawn("black", "images/black_pawn.png"),
+            "p": Pawn("black", "../images/black_pawn.png"),
             "R": Rook("white", "images/white_rook.png"),
-            "N": Knight("white", "images/white_knight.png"),
-            "B": Bishop("white", "images/white_bishop.png"),
-            "Q": Queen("white", "images/white_queen.png"),
+            "N": Knight("white", "../images/white_knight.png"),
+            "B": Bishop("white", "../images/white_bishop.png"),
+            "Q": Queen("white", "../images/white_queen.png"),
             "K": King("white", "images/white_king.png"),
-            "P": Pawn("white", "images/white_pawn.png"),
+            "P": Pawn("white", "../images/white_pawn.png"),
         }
 
     # Rethink the colouring process
