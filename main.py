@@ -256,7 +256,22 @@ class ChessBoard:
             ["r", "n", "b", "q", "k", "b", "n", "r"],
         ]
         # Initialize the position of each piece
+        self.whiteTurnMove = True  # whiteTurnMove = False means that it is black
+        self.MoveLog = []   # tracks and prints all the moves in the terminal
         self.initialize_pieces()
+
+    def move_piece(self, move):  # executes moves as a parameter
+        self.board[move.startRow][move.startCol] = ""  # square behind must be empty
+        self.board[move.endRow][move.endCol] = move.pieceMoved
+        self.MoveLog.append(move)  # create a move log to be able to undo moves
+        self.whiteTurnMove = not self.whiteTurnMove  # swap player turn
+
+    def undo_move(self):
+        if len(self.MoveLog) != 0:  # Check that move log is not 0
+            move = self.MoveLog.pop()
+            self.board[move.startRow][move.startCol] = move.pieceMoved  # reset the movved piece.
+            self.board[move.endRow][move.endCol] = move.pieceCaptured  # reset the captured piece
+            self.whiteTurnMove = not self.whiteTurnMove  # switch the turn back
 
     def initialize_pieces(self):
         piece_map = {
