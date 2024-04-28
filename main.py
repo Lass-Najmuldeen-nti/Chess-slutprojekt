@@ -24,7 +24,7 @@ class ChessPiece:
         self.color = color
         self.image_path = image_path
         self.image = pygame.image.load(image_path)
-        self.position = None
+        self.position = None  # To track the piece's position
 
     def get_symbol(self):
         return self.symbol
@@ -217,24 +217,7 @@ class Pawn(ChessPiece):
         pass  # TODO: Needs logic for the "en passant" rule
 
 
-# Create chess board with all piece's start position, global variables
-white_pieces = [
-    King('white', 'images/white_king.png'),
-    Queen('white', '../images/white_queen.png'),
-    Rook('white', 'images/white_rook.png'),
-    Bishop('white', '../images/white_bishop.png'),
-    Knight('white', '../images/white_knight.png'),
-    Pawn('white', '../images/white_pawn.png')
-]
-
-black_pieces = [
-    King('black', 'images/black_king.png'),
-    Queen('black', '../images/black_queen.png'),
-    Rook('black', 'images/black_rook.png'),
-    Bishop('black', '../images/black_bishop.png'),
-    Knight('black', '../images/black_knight.png'),
-    Pawn('black', '../images/black_pawn.png')
-]
+# Empty array for each respective colour's captured pieces
 captured_white = []
 captured_black = []
 
@@ -245,6 +228,7 @@ pygame.display.set_caption("Chess Game")
 
 class ChessBoard:
     def __init__(self):
+        self.piece_map = None
         self.board = [
             ["R", "N", "B", "Q", "K", "B", "N", "R"],
             ["P", "P", "P", "P", "P", "P", "P", "P"],
@@ -257,8 +241,34 @@ class ChessBoard:
         ]
         # Initialize the position of each piece
         self.whiteTurnMove = True  # whiteTurnMove = False means that it is black
-        self.MoveLog = []   # tracks and prints all the moves in the terminal
-        self.initialize_pieces()
+        self.MoveLog = []  # tracks and prints all the moves in the terminal
+
+    def get_piece_at(self, row, col):
+        if 0 <= row < 8 and 0 <= col < 8:
+            piece_symbol = self.board[row][col]
+            if piece_symbol == "--":  # Check if it's an empty square
+                return None
+            piece_map = {
+                "bR": Rook("black", "images/black_rook.png"),
+                "bN": Knight("black", "/images/black_knight.png"),
+                "bB": Bishop("black", "/images/black_bishop.png"),
+                "bQ": Queen("black", "/images/black_queen.png"),
+                "bK": King("black", "images/black_king.png"),
+                "bP": Pawn("black", "/images/black_pawn.png"),
+                "wR": Rook("white", "images/white_rook.png"),
+                "wN": Knight("white", "/images/white_knight.png"),
+                "wB": Bishop("white", "/images/white_bishop.png"),
+                "wQ": Queen("white", "/images/white_queen.png"),
+                "wK": King("white", "images/white_king.png"),
+                "wP": Pawn("white", "/images/white_pawn.png"),
+            }
+
+            # If the piece symbol is in the map, return the corresponding piece
+            if piece_symbol in piece_map:
+                piece = piece_map[piece_symbol]
+                piece.set_position((row, col))
+                return piece
+        return None
 
     def move_piece(self, move):  # executes moves as a parameter
         self.board[move.startRow][move.startCol] = ""  # square behind must be empty
@@ -269,37 +279,9 @@ class ChessBoard:
     def undo_move(self):
         if len(self.MoveLog) != 0:  # Check that move log is not 0
             move = self.MoveLog.pop()
-            self.board[move.startRow][move.startCol] = move.pieceMoved  # reset the movved piece.
+            self.board[move.startRow][move.startCol] = move.pieceMoved  # reset the moved piece.
             self.board[move.endRow][move.endCol] = move.pieceCaptured  # reset the captured piece
             self.whiteTurnMove = not self.whiteTurnMove  # switch the turn back
-
-    def initialize_pieces(self):
-        piece_map = {
-            "r": Rook("black", "images/black_rook.png"),
-            "n": Knight("black", "../images/black_knight.png"),
-            "b": Bishop("black", "../images/black_bishop.png"),
-            "q": Queen("black", "../images/black_queen.png"),
-            "k": King("black", "images/black_king.png"),
-            "p": Pawn("black", "../images/black_pawn.png"),
-            "R": Rook("white", "images/white_rook.png"),
-            "N": Knight("white", "../images/white_knight.png"),
-            "B": Bishop("white", "../images/white_bishop.png"),
-            "Q": Queen("white", "../images/white_queen.png"),
-            "K": King("white", "images/white_king.png"),
-            "P": Pawn("white", "../images/white_pawn.png"),
-        }
-
-    # Rethink the colouring process
-    def get_piece_at(self, row, col):
-        if 0 <= row < 8 and 0 <= col < 8:
-            piece_symbol = self.board[row][col]
-            if piece_symbol:
-                color = "white" if piece_symbol.isupper() else "black"
-                return globals()[piece_symbol.capitalize()](color)  # Should return the piece at the specified position
-                # But it's returning a new piece instance bas ed on the position without considering the actual piece
-                # on the board.
-        return None
-        pass
 
     # Move code perhaps?
     def remove_piece(self, row, col):
