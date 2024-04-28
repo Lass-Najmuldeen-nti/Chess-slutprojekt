@@ -248,6 +248,7 @@ class ChessBoard:
             piece_symbol = self.board[row][col]
             if piece_symbol == "--":  # Check if it's an empty square
                 return None
+
             piece_map = {
                 "bR": Rook("black", "images/black_rook.png"),
                 "bN": Knight("black", "/images/black_knight.png"),
@@ -295,6 +296,30 @@ clicked_col = None
 
 # Initialize ChessBoard
 chess_board = ChessBoard()
+
+
+class Move():
+    # making new map key values
+    # key : value
+    # new keyvalues are: In chess rows are called ranks
+    # Columns are called files in chess. I will change names and map key values to chess language from prog language
+    # e.g. instead of black rook, positioned on row 0 col 0 (progr language) it is on rank 8 file 8 (chess language)
+
+    rankToRow = {"1": 7, "2": 6, "3": 5, "4": 4, "5": 3, "6": 2, "7": 1, "8": 0}
+    rowToRank = {v: k for k, v in rankToRow.items()}  # for loop that reverses the values above, the other way around
+
+    filesToCol = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7}
+    colToFiles = {v: k for k, v in filesToCol.items()}
+
+    def __init__(self, start_square, end_square, board):
+        self.startRow = start_square[0]  # keep track of the data
+        self.startCol = start_square[1]  # from this row, col
+        self.endRow = end_square[0]  # to this row, col
+        self.endCol = end_square[1]
+        self.pieceMoved = board[self.startRow][self.startCol]  # move piece
+        self.pieceCaptured = board[self.endRow][self.endCol]  # capture piece
+        self.moveID = self.startRow * 1000 + self.startCol * 100 + self.endRow * 10 + self.endCol  # Check note
+
 
 # Game loop
 while True:
